@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RedNetCon 2026 – Festival techniky</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="container">
+      <h1 class="header__title">RedNetCon 2026</h1>
+      <p class="header__subtitle">Festival techniky</p>
+      <p class="header__date">15. února 2026 · Sokolovna, Náměšť nad Oslavou · 13:00–18:00</p>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Právě probíhá -->
+    <section id="now-playing" class="now-playing" hidden>
+      <h2 class="section-title">Právě probíhá</h2>
+      <div id="now-playing-content"></div>
+    </section>
+
+    <!-- Filtry -->
+    <section class="filters">
+      <div class="filter-group">
+        <span class="filter-label">Typ:</span>
+        <button class="filter-btn active" data-filter-type="all">Vše</button>
+        <button class="filter-btn" data-filter-type="talk">Přednášky</button>
+        <button class="filter-btn" data-filter-type="workshop">Workshopy</button>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Den:</span>
+        <button class="filter-btn active" data-filter-day="all">Vše</button>
+        <button class="filter-btn" data-filter-day="2026-02-14">Sobota 14. 2.</button>
+        <button class="filter-btn" data-filter-day="2026-02-15">Neděle 15. 2.</button>
+      </div>
+    </section>
+
+    <!-- Program -->
+    <section class="schedule">
+      <h2 class="section-title">Program</h2>
+      <div id="schedule-list" class="schedule-list"></div>
+      <p id="no-results" class="no-results" hidden>Žádné výsledky pro zvolené filtry.</p>
+    </section>
+
+    <!-- Info panel -->
+    <section class="info-panel">
+      <h2 class="section-title">Informace o akci</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>Přednášky</h3>
+          <p>Sokolovna, nám. Ondřeje Knolla 259, Náměšť nad Oslavou</p>
+          <p>Neděle 15. 2. 2026, 14:00–16:30</p>
+        </div>
+        <div class="info-card">
+          <h3>Workshopy</h3>
+          <p>DDM Radost, Náměšť nad Oslavou</p>
+          <p>Sobota i neděle, kapacita max 10 účastníků</p>
+        </div>
+        <div class="info-card">
+          <h3>Výstava</h3>
+          <p>20+ vystavovatelů – armáda, 3D tisk, školy, firmy, neziskovky</p>
+          <p>Sokolovna, neděle 13:00–18:00</p>
+        </div>
+        <div class="info-card">
+          <h3>Mapa</h3>
+          <iframe
+            title="Mapa – Sokolovna Náměšť nad Oslavou"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=16.1505%2C49.2050%2C16.1605%2C49.2110&layer=mapnik&marker=49.2078%2C16.1563"
+            width="100%"
+            height="200"
+            style="border: 0; border-radius: 8px;"
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Detail modal -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal__backdrop"></div>
+    <div class="modal__content">
+      <button class="modal__close" aria-label="Zavřít">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p>RedNetCon 2026 – Festival techniky · <a href="https://rednetcon.cz" target="_blank" rel="noopener">rednetcon.cz</a></p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

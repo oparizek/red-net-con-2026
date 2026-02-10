@@ -1,0 +1,112 @@
+{
+  "conference": {
+    "name": "RedNetCon – Festival techniky",
+    "date": "2026-02-15",
+    "venue": "Sokolovna, nám. Ondřeje Knolla 259, Náměšť nad Oslavou",
+    "workshopVenue": "DDM Radost, Náměšť nad Oslavou",
+    "startTime": "13:00",
+    "endTime": "18:00",
+    "description": "Konference o moderních technologiích, digitální gramotnosti a inovacích. Přednášky, workshopy a výstava 20+ vystavovatelů."
+  },
+  "sessions": [
+    {
+      "id": "w1",
+      "type": "workshop",
+      "title": "Pájení",
+      "day": "2026-02-14",
+      "dayLabel": "sobota",
+      "startTime": "09:00",
+      "endTime": "11:00",
+      "venue": "DDM Radost",
+      "capacity": 10,
+      "description": "Praktický workshop pájení pro začátečníky i pokročilé. Naučíte se základy práce s pájecí stanicí, technikou pájení a vytvoříte si vlastní jednoduchý elektronický obvod.",
+      "speaker": null
+    },
+    {
+      "id": "w2",
+      "type": "workshop",
+      "title": "3D modelování",
+      "day": "2026-02-14",
+      "dayLabel": "sobota",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "venue": "DDM Radost",
+      "capacity": 10,
+      "description": "Seznámení se základy 3D modelování. Vytvoříte si vlastní 3D model, který si můžete nechat vytisknout na 3D tiskárně.",
+      "speaker": null
+    },
+    {
+      "id": "w3",
+      "type": "workshop",
+      "title": "Programování robotů",
+      "day": "2026-02-15",
+      "dayLabel": "neděle",
+      "startTime": "09:00",
+      "endTime": "11:00",
+      "venue": "DDM Radost",
+      "capacity": 10,
+      "description": "Workshop zaměřený na programování robotů. Vyzkoušíte si základy robotiky a naprogramujete robota k plnění jednoduchých úkolů.",
+      "speaker": null
+    },
+    {
+      "id": "p1",
+      "type": "talk",
+      "title": "E-Identita (nejen) pro seniory",
+      "day": "2026-02-15",
+      "dayLabel": "neděle",
+      "startTime": "14:00",
+      "endTime": "14:30",
+      "venue": "Sokolovna",
+      "description": "Elektronická identita, bezpečnost dat a služby státní správy. Jak se orientovat v digitálním světě a využívat e-government služby bezpečně a efektivně.",
+      "speaker": {
+        "name": "doc. Ing. et Ing. Pavel Šteffan, Ph.D.",
+        "bio": "Odborník na elektronickou identitu a digitální bezpečnost."
+      }
+    },
+    {
+      "id": "p2",
+      "type": "talk",
+      "title": "Vibe coding: Programování pomocí umělé inteligence",
+      "day": "2026-02-15",
+      "dayLabel": "neděle",
+      "startTime": "14:40",
+      "endTime": "15:10",
+      "venue": "Sokolovna",
+      "description": "Jak využít AI nástroje k programování a tvorbě softwaru. Praktické ukázky vibe codingu – programování konverzací s umělou inteligencí.",
+      "speaker": {
+        "name": "Ondřej Pařízek",
+        "bio": "Software engineer v ROI Hunter. Nadšenec do moderních technologií a AI nástrojů."
+      }
+    },
+    {
+      "id": "p3",
+      "type": "talk",
+      "title": "Digitální přetížení",
+      "day": "2026-02-15",
+      "dayLabel": "neděle",
+      "startTime": "15:20",
+      "endTime": "15:50",
+      "venue": "Sokolovna",
+      "description": "Jak se vyrovnat s nadměrným přísunem digitálních informací. Strategie pro zdravý vztah k technologiím a prevence digitálního vyhoření.",
+      "speaker": {
+        "name": "Bc. et Bc. David Severa",
+        "bio": "Odborník na digitální wellbeing a vliv technologií na duševní zdraví."
+      }
+    },
+    {
+      "id": "p4",
+      "type": "talk",
+      "title": "Řízení projektů (RPR) v praxi na SPŠ Třebíč",
+      "day": "2026-02-15",
+      "dayLabel": "neděle",
+      "startTime": "16:00",
+      "endTime": "16:30",
+      "venue": "Sokolovna",
+      "description": "Praktické zkušenosti s výukou řízení projektů na střední průmyslové škole. Jak studenti řeší reálné projekty a co se při tom naučí.",
+      "speaker": {
+        "name": "Ing. Ondřej Stejskal, Matyáš Odehnal",
+        "bio": "Ing. Ondřej Stejskal – pedagog SPŠ Třebíč. Matyáš Odehnal – student SPŠ Třebíč."
+      }
+    }
+  ]
+}

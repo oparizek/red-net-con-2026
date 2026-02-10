@@ -267,8 +267,13 @@
   }
 
   function closeModal() {
-    modal.hidden = true;
-    document.body.style.overflow = "";
+    modal.classList.add("modal--closing");
+    modal.querySelector(".modal__content").addEventListener("animationend", function handler() {
+      modal.querySelector(".modal__content").removeEventListener("animationend", handler);
+      modal.classList.remove("modal--closing");
+      modal.hidden = true;
+      document.body.style.overflow = "";
+    });
   }
 
   // ===== Helpers =====

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vibecoding – RedNetCon 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06060b;
+    --fg: #f0efe8;
+    --accent: #c8ff00;
+    --accent2: #ff6b35;
+    --pink: #ff3cac;
+    --blue: #3c9dff;
+    --purple: #a78bfa;
+    --muted: #9a9ab5;
+    --dim: #5a5a75;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-snap-type: y mandatory; overflow-x: hidden; }
+  body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--fg); overflow-x: hidden; }
+
+  .slide { height: 100vh; width: 100vw; scroll-snap-align: start; scroll-snap-stop: always; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 4rem; }
+  .slide-content { max-width: 1080px; width: 100%; z-index: 2; }
+  .slide--center { text-align: center; }
+  .slide--center .slide-content { display: flex; flex-direction: column; align-items: center; }
+  .slide--center .lead, .slide--center .big-lead { text-align: center; }
+
+  .slide-nav { position: fixed; right: 2rem; top: 50%; transform: translateY(-50%); z-index: 100; display: flex; flex-direction: column; gap: 10px; }
+  .slide-nav a { width: 10px; height: 10px; border-radius: 50%; background: var(--dim); display: block; text-decoration: none; transition: all 0.4s; }
+  .slide-nav a.active { background: var(--accent); box-shadow: 0 0 12px rgba(200,255,0,0.4); transform: scale(1.5); }
+  .slide-nav a:hover:not(.active) { background: var(--muted); transform: scale(1.2); }
+
+  .slide-counter { position: fixed; bottom: 2rem; left: 2rem; z-index: 100; font-family: 'Space Mono', monospace; font-size: 0.9rem; color: var(--dim); letter-spacing: 2px; }
+  .slide-counter .cur { color: var(--accent); font-size: 1.3rem; font-weight: 700; }
+
+  .glow { position: absolute; width: 700px; height: 700px; border-radius: 50%; filter: blur(160px); opacity: 0.1; pointer-events: none; }
+
+  h1 { font-size: clamp(3.5rem, 9vw, 7rem); font-weight: 800; line-height: 0.95; letter-spacing: -4px; margin-bottom: 1.5rem; }
+  h2 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; line-height: 1.0; letter-spacing: -2px; margin-bottom: 1.5rem; }
+  h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); font-weight: 700; margin-bottom: 0.5rem; }
+
+  .lead { font-size: clamp(1.3rem, 2.8vw, 1.7rem); color: var(--muted); line-height: 1.65; max-width: 700px; }
+  .big-lead { font-size: clamp(1.5rem, 3.5vw, 2.3rem); color: var(--fg); line-height: 1.45; max-width: 750px; font-weight: 600; }
+
+  .hl { color: var(--accent); } .hl-o { color: var(--accent2); } .hl-p { color: var(--pink); } .hl-b { color: var(--blue); } .hl-v { color: var(--purple); }
+
+  .tag { display: inline-block; font-family: 'Space Mono', monospace; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 2rem; color: var(--dim); }
+
+  .live-badge { display: inline-flex; align-items: center; gap: 0.7rem; font-family: 'Space Mono', monospace; font-size: 0.95rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 2.5rem; }
+  .live-badge .dot { width: 10px; height: 10px; background: #ff3c3c; border-radius: 50%; animation: blink 1.5s infinite; box-shadow: 0 0 14px #ff3c3c; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+  .emoji-flow { font-size: 3.5rem; letter-spacing: 0.6rem; margin-bottom: 2rem; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+  .scroll-hint { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; animation: nudge 2s ease-in-out infinite; }
+  .scroll-hint::after { content: ''; display: block; width: 1px; height: 24px; background: var(--dim); margin: 8px auto 0; }
+  @keyframes nudge { 0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); } 50% { opacity: 1; transform: translateX(-50%) translateY(6px); } }
+
+  .pill-row { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
+  .pill { display: flex; align-items: center; gap: 0.7rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 1rem 1.6rem; border-radius: 100px; font-size: 1.2rem; font-weight: 600; transition: all 0.3s; }
+  .pill:hover { border-color: var(--accent); transform: translateY(-2px); background: rgba(200,255,0,0.05); }
+  .pill .icon { font-size: 1.6rem; }
+
+  .process { display: flex; gap: 1.5rem; margin-top: 2.5rem; align-items: stretch; }
+  .process-step { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 2rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.8rem; transition: all 0.4s; }
+  .process-step:hover { border-color: var(--accent); transform: translateY(-4px); }
+  .process-step .step-num { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; opacity: 0.5; }
+  .process-step .step-emoji { font-size: 3rem; }
+  .process-step h3 { font-size: 1.25rem; }
+  .process-step p { font-size: 1rem; color: var(--muted); line-height: 1.5; }
+  .process-arrow { display: flex; align-items: center; font-size: 2rem; color: var(--dim); flex-shrink: 0; }
+
+  .showcase { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+  .showcase-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 1.8rem 1.4rem; text-align: center; transition: all 0.4s; }
+  .showcase-item:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(200,255,0,0.05); }
+  .showcase-item .s-emoji { font-size: 2.8rem; margin-bottom: 0.8rem; }
+  .showcase-item h3 { font-size: 1.15rem; margin-bottom: 0.3rem; }
+
+  .compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.5rem; margin-top: 2rem; align-items: center; }
+  .compare-col { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 2rem; }
+  .compare-col h3 { font-size: 1.35rem; margin-bottom: 1.2rem; text-align: center; }
+  .compare-col.old { border-color: rgba(255,107,53,0.2); } .compare-col.old h3 { color: var(--accent2); }
+  .compare-col.new { border-color: rgba(200,255,0,0.2); } .compare-col.new h3 { color: var(--accent); }
+  .compare-row { font-size: 1.05rem; color: var(--muted); padding: 0.45rem 0; line-height: 1.5; display: flex; gap: 0.5rem; }
+  .compare-vs { font-size: 2.5rem; font-weight: 800; color: var(--dim); }
+
+  .demo-box { margin-top: 2rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(200,255,0,0.15); border-radius: 20px; padding: 2.5rem; position: relative; overflow: hidden; }
+  .demo-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--pink)); animation: gradSlide 3s linear infinite; background-size: 200% 100%; }
+  @keyframes gradSlide { 0% { background-position: 0% 0%; } 100% { background-position: 200% 0%; } }
+  .demo-label { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
+  .demo-prompt { display: flex; gap: 1rem; padding: 1rem 1.3rem; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; font-size: 1.15rem; line-height: 1.5; }
+
+  .tips { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 2rem; }
+  .tip { display: flex; gap: 1.2rem; align-items: flex-start; padding: 1.3rem 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; transition: all 0.3s; }
+  .tip:hover { border-color: var(--accent); transform: translateX(6px); }
+  .tip .tip-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .tip h3 { font-size: 1.15rem; margin-bottom: 0.2rem; }
+  .tip p { font-size: 1rem; color: var(--muted); line-height: 1.5; }
+
+  .limits { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+  .limit-card { padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); }
+  .limit-card.pro { background: rgba(200,255,0,0.04); border-color: rgba(200,255,0,0.15); }
+  .limit-card.con { background: rgba(255,107,53,0.04); border-color: rgba(255,107,53,0.15); }
+  .limit-card h3 { font-size: 1.25rem; margin-bottom: 0.8rem; }
+  .limit-card.pro h3 { color: var(--accent); } .limit-card.con h3 { color: var(--accent2); }
+  .limit-item { font-size: 1.05rem; color: var(--muted); padding: 0.45rem 0; line-height: 1.5; display: flex; gap: 0.5rem; }
+
+  .tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+  .tool { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 1.6rem 1.2rem; text-decoration: none; color: var(--fg); transition: all 0.4s; display: flex; flex-direction: column; gap: 0.5rem; text-align: center; align-items: center; }
+  .tool:hover { transform: translateY(-6px); border-color: var(--accent); box-shadow: 0 16px 48px rgba(200,255,0,0.06); }
+  .tool .t-icon { font-size: 2.4rem; } .tool h3 { font-size: 1.2rem; font-weight: 700; } .tool p { font-size: 0.9rem; color: var(--muted); line-height: 1.4; }
+  .tool .t-url { font-family: 'Space Mono', monospace; font-size: 0.55rem; color: var(--accent); letter-spacing: 1px; margin-top: auto; }
+
+  .twist-reveal { margin-top: 2rem; padding: 2.5rem; border-radius: 24px; border: 2px solid var(--accent); background: rgba(200,255,0,0.04); position: relative; overflow: hidden; }
+  .twist-reveal::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(200,255,0,0.06), transparent, rgba(255,107,53,0.04)); pointer-events: none; }
+  .twist-reveal .twist-inner { position: relative; z-index: 2; }
+
+  .section-label { font-family: 'Space Mono', monospace; font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin-bottom: 0.5rem; margin-top: 2rem; }
+
+  .iter-chain { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 2rem; align-items: center; justify-content: center; }
+  .iter-step { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 0.8rem 1.4rem; border-radius: 12px; font-size: 1.1rem; color: var(--fg); transition: all 0.3s; }
+  .iter-step:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .iter-arrow { color: var(--dim); font-size: 1.4rem; }
+
+  .timer { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%) translateY(-80px); z-index: 200; background: rgba(6,6,11,0.92); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); border-radius: 100px; padding: 0.45rem 1.2rem; display: flex; align-items: center; gap: 0.7rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  .timer.visible { transform: translateX(-50%) translateY(0); }
+  .timer .t-display { color: var(--accent); font-size: 1rem; font-weight: 700; min-width: 60px; text-align: right; }
+  .timer button { background: none; border: 1px solid rgba(255,255,255,0.1); color: var(--fg); font-family: 'Space Mono', monospace; font-size: 0.6rem; padding: 0.2rem 0.5rem; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
+  .timer button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .fi { opacity: 0; transform: translateY(25px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+  .fi.v { opacity: 1; transform: translateY(0); }
+
+  .key-hint { position: fixed; bottom: 2rem; right: 2rem; z-index: 100; font-family: 'Space Mono', monospace; font-size: 0.55rem; color: var(--dim); letter-spacing: 1px; opacity: 0.5; }
+  .key-hint kbd { display: inline-block; border: 1px solid var(--dim); border-radius: 3px; padding: 1px 4px; font-size: 0.55rem; margin: 0 1px; }
+
+  @media (max-width: 900px) {
+    .process { flex-direction: column; gap: 0.8rem; } .process-arrow { transform: rotate(90deg); justify-content: center; }
+    .showcase { grid-template-columns: repeat(2, 1fr); } .compare { grid-template-columns: 1fr; } .compare-vs { text-align: center; }
+    .tools { grid-template-columns: repeat(2, 1fr); } .limits { grid-template-columns: 1fr; }
+    .iter-chain { flex-direction: column; } .iter-arrow { transform: rotate(90deg); }
+  }
+  @media (max-width: 600px) {
+    .slide { padding: 2.5rem 1.5rem; } .slide-nav { right: 1rem; gap: 7px; } .slide-nav a { width: 6px; height: 6px; }
+    .showcase { grid-template-columns: 1fr; } .tools { grid-template-columns: 1fr 1fr; gap: 0.6rem; } .key-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="slide-nav" id="slideNav"></div>
+<div class="slide-counter"><span class="cur" id="cCur">1</span><span id="cTotal"></span></div>
+<div class="key-hint"><kbd>↑</kbd><kbd>↓</kbd> navigace <kbd>T</kbd> timer</div>
+
+<!-- 1 — TITLE -->
+<div class="slide slide--center" id="s1">
+  <div class="glow" style="background:var(--accent); top:-300px; right:-200px;"></div>
+  <div class="glow" style="background:var(--pink); bottom:-300px; left:-200px;"></div>
+  <div class="slide-content">
+    <div class="live-badge fi"><span class="dot"></span> REDNETCON 2026</div>
+    <div class="emoji-flow fi">💬 → 🤖 → 🚀</div>
+    <h1 class="fi"><span class="hl">Vibe</span>coding</h1>
+    <p class="lead fi">Místo psaní kódu popíšete nápad — a AI ho vytvoří.</p>
+  </div>
+  <div class="scroll-hint">scrolluj dolů</div>
+</div>
+
+<!-- 2 — PŘEDSTAVENÍ -->
+<div class="slide slide--center" id="s2">
+  <div class="glow" style="background:var(--blue); top:30%; right:-300px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">02</div>
+    <h2 class="fi"><span class="hl">Ondřej Pařízek</span></h2>
+    <p class="big-lead fi" style="margin-top:0.5rem;">Lead Developer · TypeScript &amp; Kotlin</p>
+    <p class="lead fi" style="margin-top:1.5rem;">ROI Hunter — platforma pro product performance marketing</p>
+    <p class="lead fi" style="margin-top:0.5rem; font-size:1.1rem;"><a href="https://roihunter.com" target="_blank" style="color:var(--accent); text-decoration:none;">roihunter.com →</a></p>
+  </div>
+</div>
+
+<!-- 3 — OTÁZKA -->
+<div class="slide slide--center" id="s3">
+  <div class="glow" style="background:var(--blue); top:30%; left:-300px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">03</div>
+    <h2 class="fi" style="font-size:clamp(2rem,5vw,3.5rem);">Kdo z vás už použil <span class="hl">AI</span>?</h2>
+    <p class="big-lead fi" style="margin-top:1.5rem;">ChatGPT, <span class="hl">Claude</span>, Gemini…? 🙋</p>
+    <p class="big-lead fi" style="margin-top:2.5rem;">A kdo s tím vytvořil<br><span class="hl-o">web</span>, <span class="hl-p">appku</span> nebo <span class="hl-b">hru</span>?</p>
+  </div>
+</div>
+
+<!-- 4 — ONE-SHOT DEMO -->
+<div class="slide slide--center" id="s4">
+  <div class="glow" style="background:var(--accent2); top:-200px; left:-200px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">04 — ukázka</div>
+    <h2 class="fi">Jedna věta.<br><span class="hl-o">Jedna hra.</span></h2>
+    <p class="lead fi" style="text-align:center; margin: 0 auto 2rem;">Otevřu <span class="hl">claude.ai</span> a napíšu:</p>
+    <div class="demo-box fi">
+      <div class="demo-label">claude.ai — zadání pro AI →</div>
+      <div class="demo-prompt" style="font-size:1.3rem; padding:1.5rem 1.8rem;">
+        <span>„Vytvoř jednoduchou hru na procvičování angličtiny. Zobraz anglické slovo a hráč musí vybrat správný český překlad."</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5 — CO JE VIBECODING -->
+<div class="slide" id="s5">
+  <div class="glow" style="background:var(--accent); top:40%; right:-300px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">05 — definice</div>
+    <h2 class="fi">Co je <span class="hl">vibecoding</span>?</h2>
+    <p class="lead fi">Neučíte se syntaxi — učíte se popsat, co chcete.</p>
+    <div class="process fi">
+      <div class="process-step"><div class="step-num">KROK 1</div><div class="step-emoji">💡</div><h3>Máš nápad</h3></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="step-num">KROK 2</div><div class="step-emoji">💬</div><h3>Popíšeš to AI</h3></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="step-num">KROK 3</div><div class="step-emoji">🤖</div><h3>AI vytvoří kód</h3></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step"><div class="step-num">KROK 4</div><div class="step-emoji">🔄</div><h3>Iteruješ</h3></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 — ITERACE V PRAXI -->
+<div class="slide slide--center" id="s6">
+  <div class="glow" style="background:var(--purple); bottom:-300px; left:-200px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">06 — iterace</div>
+    <h2 class="fi">Jedna věta nestačí.<br><span class="hl-v">A to je ok.</span></h2>
+    <p class="lead fi">Vibecoding = konverzace, ne jednorázový příkaz.</p>
+    <div class="iter-chain fi">
+      <div class="iter-step">„Chci hru na angličtinu"</div>
+      <span class="iter-arrow">→</span>
+      <div class="iter-step">„Zobraz slovo, hráč vybere překlad"</div>
+      <span class="iter-arrow">→</span>
+      <div class="iter-step">Hotová hra</div>
+      <span class="iter-arrow">→</span>
+      <div class="iter-step">„Přidej časový limit, víc slov, zvuky"</div>
+    </div>
+  </div>
+</div>
+
+<!-- 7 — CO JE PROMPT -->
+<div class="slide" id="s7">
+  <div class="glow" style="background:var(--accent); top:30%; left:-300px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">07 — tipy</div>
+    <h2 class="fi">Co je <span class="hl">prompt</span> a jak ho psát?</h2>
+    <p class="lead fi">Prompt = instrukce pro AI. Čím lepší popis, tím lepší výsledek.</p>
+    <div class="tips fi">
+      <div class="tip"><div class="tip-icon">🎯</div><div><h3>Buďte konkrétní</h3><p>Ne „udělej hru" — ale „hra na angličtinu, hráč vybírá ze 4 možností"</p></div></div>
+      <div class="tip"><div class="tip-icon">🔄</div><div><h3>Nebojte se iterovat</h3><p>„Změň barvy, přidej zvuk, zrychli to."</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 — CO LZE VYTVOŘIT -->
+<div class="slide" id="s8">
+  <div class="glow" style="background:var(--accent2); top:20%; left:-250px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">08 — možnosti</div>
+    <h2 class="fi">Co všechno <span class="hl-o">lze vytvořit</span>?</h2>
+    <p class="lead fi">Za pár minut, bez znalosti programování.</p>
+    <div class="showcase fi">
+      <div class="showcase-item"><div class="s-emoji">🌐</div><h3>Weby</h3></div>
+      <div class="showcase-item"><div class="s-emoji">🎮</div><h3>Hry</h3></div>
+      <div class="showcase-item"><div class="s-emoji">📱</div><h3>Aplikace</h3></div>
+      <div class="showcase-item"><div class="s-emoji">🎨</div><h3>Generativní umění</h3></div>
+      <div class="showcase-item"><div class="s-emoji">📊</div><h3>Dashboardy</h3></div>
+      <div class="showcase-item"><div class="s-emoji">🛠️</div><h3>Nástroje</h3></div>
+    </div>
+  </div>
+</div>
+
+<!-- 9 — SROVNÁNÍ -->
+<div class="slide" id="s9">
+  <div class="glow" style="background:var(--blue); bottom:-250px; right:-250px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">09 — srovnání</div>
+    <h2 class="fi">Svět <span class="hl-o">před</span> a <span class="hl">po</span></h2>
+    <div class="compare fi">
+      <div class="compare-col old"><h3>🔧 Tradiční vývoj</h3><div class="compare-row"><span>→</span> Měsíce učení jazyka</div><div class="compare-row"><span>→</span> Ruční psaní kódu řádek po řádku</div><div class="compare-row"><span>→</span> Výsledek za týdny</div></div>
+      <div class="compare-vs">vs.</div>
+      <div class="compare-col new"><h3>⚡ Vibecoding</h3><div class="compare-row"><span>→</span> Stačí popsat nápad</div><div class="compare-row"><span>→</span> Kód se generuje automaticky</div><div class="compare-row"><span>→</span> Výsledek za minuty</div></div>
+    </div>
+    <div class="process fi" style="margin-top:2rem;">
+      <div class="process-step" style="padding:1.2rem 1rem;"><div class="step-emoji">🔮</div><h3>2023</h3><p>Autocomplete</p></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step" style="padding:1.2rem 1rem;"><div class="step-emoji">💬</div><h3>2024</h3><p>Chat asistent</p></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step" style="padding:1.2rem 1rem; border-color:rgba(200,255,0,0.2);"><div class="step-emoji">🤖</div><h3>2025</h3><p>AI agent</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 — AGENTIC CODING -->
+<div class="slide" id="s10">
+  <div class="glow" style="background:var(--purple); top:20%; right:-250px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">10 — agentic</div>
+    <h2 class="fi">Agentic <span class="hl-v">coding</span></h2>
+    <p class="lead fi">AI agent pro větší úkoly a existující projekty.</p>
+    <div class="process fi" style="margin-top:2rem;">
+      <div class="process-step" style="padding:1.2rem 1rem;"><div class="step-emoji">📋</div><h3>Plánování</h3><p>Prozkoumá projekt, navrhne postup</p></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step" style="padding:1.2rem 1rem;"><div class="step-emoji">🧪</div><h3>Testy</h3><p>Napíše testy, ověří co má fungovat</p></div>
+      <div class="process-arrow">→</div>
+      <div class="process-step" style="padding:1.2rem 1rem;"><div class="step-emoji">⚙️</div><h3>Implementace</h3><p>Napíše kód, spustí, opraví chyby</p></div>
+    </div>
+    <div class="tools fi" style="margin-top: 2rem;">
+      <div class="tool" style="cursor:default; padding:1.2rem 1rem;"><div class="t-icon">🟠</div><h3>Claude Code</h3></div>
+      <div class="tool" style="cursor:default; padding:1.2rem 1rem;"><div class="t-icon">🔵</div><h3>Cursor</h3></div>
+      <div class="tool" style="cursor:default; padding:1.2rem 1rem;"><div class="t-icon">🟢</div><h3>Codex</h3></div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 — CO VŠECHNO AI VIDÍ -->
+<div class="slide" id="s11">
+  <div class="glow" style="background:var(--blue); top:30%; left:-300px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">11 — vstupy</div>
+    <h2 class="fi">Nejen text.<br><span class="hl-b">Obrázky, služby, data.</span></h2>
+    <div class="tips fi" style="margin-top:2rem;">
+      <div class="tip"><div class="tip-icon">📸</div><div><h3>Obrázky</h3><p>Nahraješ screenshot → AI pochopí co opravit</p></div></div>
+      <div class="tip"><div class="tip-icon">🔌</div><div><h3>MCP</h3><p>Např. napojení na prohlížeč — AI si samo otevře výsledek a zkontroluje ho</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 — MODELY POD KAPOTOU -->
+<div class="slide" id="s12">
+  <div class="glow" style="background:var(--accent2); bottom:-300px; right:-200px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">12 — modely</div>
+    <h2 class="fi">Co je <span class="hl-o">pod kapotou</span>?</h2>
+    <div class="tools fi" style="margin-top: 2rem;">
+      <div class="tool" style="cursor:default;"><div class="t-icon">🟠</div><h3>Claude</h3><p>Anthropic</p></div>
+      <div class="tool" style="cursor:default;"><div class="t-icon">🟢</div><h3>GPT</h3><p>OpenAI</p></div>
+      <div class="tool" style="cursor:default;"><div class="t-icon">🔵</div><h3>Gemini</h3><p>Google</p></div>
+    </div>
+    <div class="tips fi" style="margin-top:1.5rem;">
+      <div class="tip"><div class="tip-icon">🧠</div><div><h3>Thinking modely</h3><p>AI co „přemýšlí" krok po kroku → lepší výsledky na složité úkoly</p></div></div>
+      <div class="tip"><div class="tip-icon">💰</div><div><h3>Tokeny → cena</h3><p>Složitější úkol → víc tokenů → vyšší cena. Jednoduchý web = pár centů. Velký projekt = desítky dolarů denně.</p></div></div>
+    </div>
+    <p class="lead fi" style="margin-top:1.5rem;">Nový model každých pár měsíců. Každý výrazně lepší.</p>
+  </div>
+</div>
+
+<!-- 13 — ROLE VÝVOJÁŘE -->
+<div class="slide slide--center" id="s13">
+  <div class="glow" style="background:var(--blue); top:-200px; left:-200px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">13 — transformace</div>
+    <h2 class="fi">Méně kódu.<br><span class="hl-b">Víc přemýšlení.</span></h2>
+    <div class="pill-row fi" style="justify-content:center; margin-top:2.5rem;">
+      <div class="pill"><span class="icon">🏗️</span> Architektura</div>
+      <div class="pill"><span class="icon">🔍</span> Code review</div>
+      <div class="pill"><span class="icon">🎯</span> Řízení AI agentů</div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 — MŮJ STACK -->
+<div class="slide" id="s14">
+  <div class="glow" style="background:var(--accent2); top:20%; left:-250px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">14 — workflow</div>
+    <h2 class="fi">Můj <span class="hl-o">stack</span> dnes</h2>
+    <div class="tips fi" style="margin-top:2rem;">
+      <div class="tip" style="border-color:rgba(200,255,0,0.2);"><div class="tip-icon">🟠</div><div style="flex:1; display:flex; justify-content:space-between; align-items:center;"><div><h3>Claude Code</h3><p>Plánování, agentic coding</p></div><div style="font-size:2rem; font-weight:800; color:var(--accent);">80%</div></div></div>
+      <div class="tip"><div class="tip-icon">🔷</div><div style="flex:1; display:flex; justify-content:space-between; align-items:center;"><div><h3>IntelliJ IDEA</h3><p>Manuální kontrola kódu</p></div><div style="font-size:2rem; font-weight:800; color:var(--muted);">10%</div></div></div>
+      <div class="tip"><div class="tip-icon">🟣</div><div style="flex:1; display:flex; justify-content:space-between; align-items:center;"><div><h3>GitHub Copilot</h3><p>Code review</p></div><div style="font-size:2rem; font-weight:800; color:var(--muted);">5%</div></div></div>
+      <div class="tip"><div class="tip-icon">🟢</div><div style="flex:1; display:flex; justify-content:space-between; align-items:center;"><div><h3>ChatGPT</h3><p>Konzultace, vyhledávání</p></div><div style="font-size:2rem; font-weight:800; color:var(--muted);">5%</div></div></div>
+    </div>
+    <p class="lead fi" style="margin-top:1.5rem; font-size:1.1rem;">Nástroje běží paralelně: CC implementuje, Copilot reviewuje, ChatGPT připravuje specifikaci.</p>
+  </div>
+</div>
+
+<!-- 15 — PRO BUDOUCÍ PROGRAMÁTORY -->
+<div class="slide slide--center" id="s15">
+  <div class="glow" style="background:var(--accent); bottom:-300px; left:-200px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">15 — pro vás</div>
+    <h2 class="fi">Vstupní bariéra <span class="hl">padá</span>.</h2>
+    <p class="big-lead fi" style="margin-top:1.5rem;">Začít tvořit můžete dnes.</p>
+    <p class="lead fi" style="margin-top:1.5rem;">Základy se vyplatí — pomáhají řídit AI líp.</p>
+  </div>
+</div>
+
+<!-- 16 — LIVE DEMO -->
+<div class="slide slide--center" id="s16">
+  <div class="glow" style="background:var(--accent2); top:20%; right:-250px;"></div>
+  <div class="glow" style="background:var(--pink); bottom:-200px; left:-200px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">16 — live demo</div>
+    <h2 class="fi">Teď to <span class="hl-o">uděláme</span> společně 🔥</h2>
+  </div>
+</div>
+
+<!-- 17 — LIMITY -->
+<div class="slide" id="s17">
+  <div class="glow" style="background:var(--pink); top:30%; right:-250px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">17 — realita</div>
+    <h2 class="fi">Buďme <span class="hl-p">upřímní</span></h2>
+    <p class="lead fi">Má silné stránky i limity.</p>
+    <div class="limits fi">
+      <div class="limit-card pro"><h3>✅ Kde to exceluje</h3><div class="limit-item"><span>→</span> Rychlé prototypy</div><div class="limit-item"><span>→</span> Osobní projekty</div><div class="limit-item"><span>→</span> Učení a experimenty</div></div>
+      <div class="limit-card con"><h3>⚠️ Kde má limity</h3><div class="limit-item"><span>→</span> Velké, komplexní projekty</div><div class="limit-item"><span>→</span> Bezpečnost a citlivá data</div><div class="limit-item"><span>→</span> Občas generuje chyby</div><div class="limit-item"><span>→</span> Při větším objemu práce je drahé</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 18 — WRAP-UP -->
+<div class="slide slide--center" id="s18">
+  <div class="glow" style="background:var(--accent); top:-200px; right:-200px;"></div>
+  <div class="glow" style="background:var(--purple); bottom:-300px; left:-200px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">18 — shrnutí</div>
+    <h2 class="fi"><span class="hl">15 let</span> programuji.<br>Tohle je největší změna.</h2>
+    <div class="compare fi" style="margin-top:2.5rem; grid-template-columns: 1fr auto 1fr;">
+      <div class="compare-col old" style="text-align:center;"><h3>2024 / 2025</h3><p class="lead" style="max-width:100%; font-size:1.2rem;">AI = doplněk</p></div>
+      <div class="compare-vs">→</div>
+      <div class="compare-col new" style="text-align:center;"><h3>2025 / 2026</h3><p class="lead" style="max-width:100%; font-size:1.2rem;">AI = hlavní nástroj</p></div>
+    </div>
+    <p class="big-lead fi" style="margin-top:2.5rem;">Nejde o to, jestli AI přijde. Už je tady.</p>
+  </div>
+</div>
+
+<!-- 19 — PLOT TWIST -->
+<div class="slide slide--center" id="s19">
+  <div class="glow" style="background:var(--accent); top:-200px; left:50%; transform:translateX(-50%);"></div>
+  <div class="slide-content">
+    <div class="tag fi">19 — plot twist</div>
+    <h2 class="fi">Ještě jedna <span class="hl">věc</span>…</h2>
+    <p class="big-lead fi" style="margin-top:1.5rem; margin-bottom:2.5rem;">Tato celá prezentace?</p>
+    <div class="twist-reveal fi">
+      <div class="twist-inner">
+        <h2 style="font-size:clamp(1.8rem,4.5vw,3rem); margin-bottom:0.8rem;">Byla <span class="hl">vibecódovaná</span> ⚡</h2>
+        <p class="lead" style="text-align:center; margin:0 auto; font-size:1.3rem;">Žádný PowerPoint. Jenom AI.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 20 — ZKUS TO TY -->
+<div class="slide" id="s20">
+  <div class="glow" style="background:var(--accent); bottom:-250px; right:-150px;"></div>
+  <div class="glow" style="background:var(--pink); top:-250px; left:-200px;"></div>
+  <div class="slide-content">
+    <div class="tag fi">20 — tvůj tah</div>
+    <h2 class="fi">Další krok: <span class="hl-p">zkus to ty</span></h2>
+    <p class="lead fi">Všechno zdarma nebo s free tier.</p>
+    <div class="section-label fi">🚀 Začínáš</div>
+    <div class="tools fi">
+      <a href="https://claude.ai" target="_blank" class="tool"><div class="t-icon">🟠</div><h3>Claude</h3><span class="t-url">claude.ai →</span></a>
+      <a href="https://chatgpt.com" target="_blank" class="tool"><div class="t-icon">🟢</div><h3>ChatGPT</h3><span class="t-url">chatgpt.com →</span></a>
+      <a href="https://bolt.new" target="_blank" class="tool"><div class="t-icon">⚡</div><h3>Bolt.new</h3><span class="t-url">bolt.new →</span></a>
+    </div>
+    <div class="section-label fi">💻 Už programuješ</div>
+    <div class="tools fi">
+      <div class="tool" style="cursor:default;"><div class="t-icon">🟠</div><h3>Claude Code</h3></div>
+      <a href="https://cursor.com" target="_blank" class="tool"><div class="t-icon">🔵</div><h3>Cursor</h3><span class="t-url">cursor.com →</span></a>
+      <div class="tool" style="cursor:default;"><div class="t-icon">🟢</div><h3>Codex</h3></div>
+    </div>
+  </div>
+</div>
+
+<div class="timer" id="timer">
+  <span>⏱</span>
+  <button onclick="resetTimer()">RST</button>
+  <button onclick="toggleTimer()" id="tBtn">▶</button>
+  <span class="t-display" id="tDisp">00:00</span>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const navEl = document.getElementById('slideNav');
+  const total = slides.length;
+  document.getElementById('cTotal').textContent = ` / ${total}`;
+  slides.forEach((_, i) => { const a = document.createElement('a'); a.href = `#s${i+1}`; if (i===0) a.classList.add('active'); navEl.appendChild(a); });
+  const dots = navEl.querySelectorAll('a');
+  const counter = document.getElementById('cCur');
+  const sObs = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { const idx = [...slides].indexOf(e.target); dots.forEach(d => d.classList.remove('active')); dots[idx]?.classList.add('active'); counter.textContent = idx + 1; } }); }, { threshold: 0.55 });
+  slides.forEach(s => sObs.observe(s));
+  const fObs = new IntersectionObserver((entries) => { entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('v'), i * 90); } }); }, { threshold: 0.15 });
+  document.querySelectorAll('.fi').forEach(el => fObs.observe(el));
+  document.addEventListener('keydown', (e) => { const cur = parseInt(counter.textContent) - 1; if (['ArrowDown','PageDown',' ','ArrowRight'].includes(e.key)) { e.preventDefault(); slides[cur+1]?.scrollIntoView({ behavior: 'smooth' }); } if (['ArrowUp','PageUp','ArrowLeft'].includes(e.key)) { e.preventDefault(); slides[cur-1]?.scrollIntoView({ behavior: 'smooth' }); } if (e.key === 't' || e.key === 'T') { document.getElementById('timer').classList.toggle('visible'); } });
+  let tRun = false, tSec = 0, tInt = null;
+  function toggleTimer() { if (tRun) { clearInterval(tInt); document.getElementById('tBtn').textContent = '▶'; } else { tInt = setInterval(() => { tSec++; const m = String(Math.floor(tSec/60)).padStart(2,'0'); const s = String(tSec%60).padStart(2,'0'); document.getElementById('tDisp').textContent = `${m}:${s}`; }, 1000); document.getElementById('tBtn').textContent = '⏸'; } tRun = !tRun; }
+  function resetTimer() { clearInterval(tInt); tRun = false; tSec = 0; document.getElementById('tDisp').textContent = '00:00'; document.getElementById('tBtn').textContent = '▶'; }
+</script>
+</body>
+</html>
